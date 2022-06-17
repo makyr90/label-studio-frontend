@@ -29,6 +29,6 @@
  * @param {boolean} [selectionEnabled=true]               Enable or disable selection
  * @param {string} [highlightColor]                       Hex string with highlight color, if not provided uses the labels color
  * @param {boolean} [showLabels]                          Whether or not to show labels next to the region; unset (by default) — use editor settings; true/false — override settings
- * @param {symbol|word|sentence|paragraph} [granularity]  Control region selection granularity
+ * @param {symbol|word|pretokenized|sentence|paragraph} [granularity]  Control region selection granularity
  */
 export const TextModel = {};

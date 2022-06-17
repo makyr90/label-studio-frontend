@@ -59,7 +59,7 @@ const TagAttrs = types.model({
   size: types.optional(types.string, "medium"),
   background: types.optional(customTypes.color, Constants.LABEL_BACKGROUND),
   selectedcolor: types.optional(customTypes.color, "#ffffff"),
-  granularity: types.maybeNull(types.enumeration(["symbol", "word", "sentence", "paragraph"])),
+  granularity: types.maybeNull(types.enumeration(["symbol", "word", "pretokenized", "sentence", "paragraph"])),
   groupcancontain: types.maybeNull(types.string),
   // childrencheck: types.optional(types.enumeration(["any", "all"]), "any")
   ...(isFF(FF_DEV_2128) ? { html: types.maybeNull(types.string) } : {} ),

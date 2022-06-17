@@ -43,7 +43,7 @@ const WARNING_MESSAGES = {
  * @param {string} [highlightColor]                       - hex string with highlight color, if not provided uses the labels color
  * @param {boolean} [showLabels=true]                     - whether or not to show labels next to the region
  * @param {none|base64|base64unicode} [encoding]          - decode value from an encoded string
- * @param {symbol|word|sentence|paragraph} [granularity]   - control region selection granularity
+ * @param {symbol|word|pretokenized|sentence|paragraph} [granularity]   - control region selection granularity
  */
 const TagAttrs = types.model("RichTextModel", {
   name: types.identifier,
@@ -69,7 +69,7 @@ const TagAttrs = types.model("RichTextModel", {
 
   encoding: types.optional(types.enumeration(["none", "base64", "base64unicode"]), "none"),
 
-  granularity: types.optional(types.enumeration(["symbol", "word", "sentence", "paragraph"]), "symbol"),
+  granularity: types.optional(types.enumeration(["symbol", "word", "pretokenized", "sentence", "paragraph"]), "symbol"),
 });
 
 const Model = types

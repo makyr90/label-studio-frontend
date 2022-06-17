@@ -121,6 +121,40 @@ const findBoundarySelection = (selection, boundary) => {
   return selection;
 };
 
+const findBoundarySelectionPretokenized = (selection) => {
+
+  let [bws,aws] = [false,false]; // before whitespace, after whitespace
+
+  // sort because direction user makes selection determines node/offset order
+  let [[bn,bo],[an,ao]] // before node/offset (backward), and after node/offset (forward)
+      = [[selection.anchorNode, selection.anchorOffset],[selection.focusNode, selection.focusOffset]]
+        .sort(function(aa,bb) { return aa[1] - bb[1]; }); // sort by offset
+
+  // move BEFORE position backward until whitespace or beginning of node
+  while ( !bws && 0 < bo ) {
+    selection.setBaseAndExtent(bn,--bo,an,ao); // move backward 1 character
+
+    // don't include whitespace, and assign result to bws
+    if ( (bws = (-1 !== selection.toString().search(/\r?\n| /))) ) {
+      ++bo; // prepare to move forward 1 to remove space
+    }
+  }
+
+  // move AFTER position forward until whitespace or end of node
+  while ( !aws && an.length >= ao + 1 ) {
+    selection.setBaseAndExtent(bn,bo,an,++ao); // move forward 1 character
+    if ( (aws = (-1 !== selection.toString().search(/\r?\n| /))) ) { // don't include whitespace, and assign result to aws
+      --ao; // prepare to move backward to remove space
+    }
+  }
+  bn = "";
+  an = "";
+  selection.setBaseAndExtent(bn,bo,an,ao); // remove whitespace
+  trimSelection(selection);
+
+  return selection;
+};
+
 const closestBoundarySelection = (selection, boundary) => {
   const {
     range: originalRange,
@@ -186,6 +220,8 @@ const boundarySelection = (selection, boundary) => {
   if (wordBoundary) {
     if (boundary.endsWith("boundary")) {
       closestBoundarySelection(selection, boundary);
+    } else if (boundary === "pretokenized") {
+      findBoundarySelectionPretokenized(selection);
     } else {
       findBoundarySelection(selection, boundary);
     }
@@ -255,6 +291,9 @@ const applyTextGranularity = (selection, granularity) => {
     switch (granularity) {
       case "word":
         boundarySelection(selection, "word");
+        return;
+      case "pretokenized":
+        boundarySelection(selection, "pretokenized");
         return;
       case "sentence":
         boundarySelection(selection, "sentenceboundary");
