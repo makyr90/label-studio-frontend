@@ -127,31 +127,58 @@ const findBoundarySelectionPretokenized = (selection) => {
 
   // sort because direction user makes selection determines node/offset order
   let [[bn,bo],[an,ao]] // before node/offset (backward), and after node/offset (forward)
-      = [[selection.anchorNode, selection.anchorOffset],[selection.focusNode, selection.focusOffset]]
-        .sort(function(aa,bb) { return aa[1] - bb[1]; }); // sort by offset
+    = [[selection.anchorNode, selection.anchorOffset],[selection.focusNode, selection.focusOffset]]
+      .sort(function(aa,bb) { return aa[1] - bb[1]; }); // sort by offset
 
   // move BEFORE position backward until whitespace or beginning of node
-  while ( !bws && 0 < bo ) {
+  while ( !bws && 0 < bo && !selection.toString().startsWith(' ')) {
     selection.setBaseAndExtent(bn,--bo,an,ao); // move backward 1 character
 
     // don't include whitespace, and assign result to bws
-    if ( (bws = (-1 !== selection.toString().search(/\r?\n| /))) ) {
+    if ( (bws = (0 === selection.toString().search(/\r?\n| /))) ) {
       ++bo; // prepare to move forward 1 to remove space
     }
   }
 
   // move AFTER position forward until whitespace or end of node
-  while ( !aws && an.length >= ao + 1 ) {
+  const regex = /\r?\n| /g;
+  let result;
+  const indices = [];
+
+  while ( (result = regex.exec(selection.toString())) ) {
+    if (result.index !== 0) {
+      indices.push(result.index);
+    }
+  }
+
+  while ( !aws && an.length >= ao + 1 && !selection.toString().endsWith(' ')) {
     selection.setBaseAndExtent(bn,bo,an,++ao); // move forward 1 character
-    if ( (aws = (-1 !== selection.toString().search(/\r?\n| /))) ) { // don't include whitespace, and assign result to aws
+    let result2;
+    const indices2 = [];
+
+    while ( (result2 = regex.exec(selection.toString())) ) {
+      if (result2.index !== 0) {
+        indices2.push(result2.index);
+      }
+    }
+    if ( (aws = (indices2.length > indices.length && indices2.length > 0) )) {// don't include whitespace, and assign result to aws
       --ao; // prepare to move backward to remove space
     }
   }
+
+  selection.setBaseAndExtent(bn,bo,an,ao);
+  // Remove trailling whitespaces
+  if (selection.toString().endsWith(' ')) {
+    --ao;
+    selection.setBaseAndExtent(bn,bo,an,ao);
+  }
+  if (selection.toString().startsWith(' ')) {
+    ++bo;
+    selection.setBaseAndExtent(bn,bo,an,ao);
+  }
+
   bn = "";
   an = "";
-  selection.setBaseAndExtent(bn,bo,an,ao); // remove whitespace
-  trimSelection(selection);
-
   return selection;
 };
 
