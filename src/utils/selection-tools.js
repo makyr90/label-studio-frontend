@@ -124,9 +124,10 @@ const findBoundarySelection = (selection, boundary) => {
 const findBoundarySelectionPretokenized = (selection) => {
 
   let [bws,aws] = [false,false]; // before whitespace, after whitespace
+  let [bn,bo,an,ao] = [0,0,0,0];
 
   // sort because direction user makes selection determines node/offset order
-  let [[bn,bo],[an,ao]] // before node/offset (backward), and after node/offset (forward)
+  [[bn,bo],[an,ao]] // before node/offset (backward), and after node/offset (forward)
     = [[selection.anchorNode, selection.anchorOffset],[selection.focusNode, selection.focusOffset]]
       .sort(function(aa,bb) { return aa[1] - bb[1]; }); // sort by offset
 
@@ -177,8 +178,7 @@ const findBoundarySelectionPretokenized = (selection) => {
     selection.setBaseAndExtent(bn,bo,an,ao);
   }
 
-  bn = "";
-  an = "";
+
   return selection;
 };
 
